@@ -1,5 +1,8 @@
 $script:GroupBaseUrl = "https://www.googleapis.com/admin/directory/v1/groups"
 $script:UserBaseUrl = "https://www.googleapis.com/admin/directory/v1/users"
+$script:OUBaseUrl = "https://www.googleapis.com/admin/directory/v1/customer"
+$script:UserAgent = "PowerShell"
+$script:UserAgentGzip = "PowerShell (gzip)"
 
 #region Groups
 
@@ -48,7 +51,10 @@ Function New-GoogleDirectoryGroup {
 		[Switch]$Persist,
 
 		[Parameter()]
-		[Switch]$PassThru
+		[Switch]$PassThru,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -75,7 +81,16 @@ Function New-GoogleDirectoryGroup {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
 
 			if ($PassThru)
 			{
@@ -182,7 +197,10 @@ Function Set-GoogleDirectoryGroup {
 		[Switch]$Persist,
 
 		[Parameter()]
-		[Switch]$PassThru
+		[Switch]$PassThru,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -225,7 +243,16 @@ Function Set-GoogleDirectoryGroup {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers $Headers -UserAgent $UserAgent
 
 			if ($PassThru)
 			{
@@ -325,7 +352,10 @@ Function New-GoogleDirectoryGroupAlias {
 		[Switch]$Persist,
 
 		[Parameter()]
-		[Switch]$PassThru
+		[Switch]$PassThru,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -346,7 +376,16 @@ Function New-GoogleDirectoryGroupAlias {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
 
 			if ($PassThru)
 			{
@@ -439,7 +478,10 @@ Function Get-GoogleDirectoryGroupAlias {
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
-		[Switch]$Persist
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -458,7 +500,16 @@ Function Get-GoogleDirectoryGroupAlias {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
 
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
@@ -658,7 +709,10 @@ Function Get-GoogleDirectoryGroup {
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
-		[Switch]$Persist
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -677,7 +731,16 @@ Function Get-GoogleDirectoryGroup {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
 
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
@@ -772,7 +835,10 @@ Function Get-GoogleDirectoryGroupList {
 		[Parameter(Mandatory = $true, ParameterSetName = "TokenCustomerId")]
         [Parameter(Mandatory = $true, ParameterSetName = "ProfileCustomerId")]
         [ValidateNotNullOrEmpty()]
-        [System.String]$CustomerId
+        [System.String]$CustomerId,
+
+		[Parameter()]
+		[Switch]$UseCompression
     )
 
     Begin {
@@ -815,10 +881,19 @@ Function Get-GoogleDirectoryGroupList {
         [System.String]$Url = $Base
         [System.Collections.Hashtable[]]$Groups = @()
 
+		$Headers = @{"Authorization" = "Bearer $BearerToken"}
+		$UserAgent = $script:UserAgent
+
+		if ($UseCompression)
+		{
+			$UserAgent = $script:UserAgentGzip
+			$Headers.Add("Accept-Encoding", "gzip")
+		}
+
         do {
             try
 			{
-				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -ErrorAction Stop -UserAgent PowerShell
+				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -ErrorAction Stop -UserAgent $UserAgent
 				
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 				
@@ -925,7 +1000,10 @@ Function Get-GoogleDirectoryGroupsForUser {
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
-		[Switch]$Persist
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -944,11 +1022,20 @@ Function Get-GoogleDirectoryGroupsForUser {
 		$NextToken = $null
 		[System.Collections.Hashtable[]]$Groups = @()
 
+		$Headers = @{"Authorization" = "Bearer $BearerToken"}
+		$UserAgent = $script:UserAgent
+
+		if ($UseCompression)
+		{
+			$UserAgent = $script:UserAgentGzip
+			$Headers.Add("Accept-Encoding", "gzip")
+		}
+
 		do
 		{
 			try
 			{
-				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
 
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
@@ -1132,6 +1219,242 @@ Function Remove-GoogleDirectoryGroup {
 
 #region Group Membership
 
+Function Add-GoogleDirectoryGroupMember {
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$GroupKey,
+
+        [Parameter()]
+        [ValidateSet("OWNER", "MANAGER", "MEMBER")]
+        [System.String]$Role = "MEMBER",
+
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$UserId,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$ClientId,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:GroupBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$GroupKey/members"
+
+		[System.String]$Body = ConvertTo-Json -InputObject @{"email" = $UserId; "role" = $Role } -Compress -Depth 3
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
+			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+
+			[System.Collections.Hashtable]$Temp = @{}
+			foreach ($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+			{
+				$Temp.Add($Property, $ParsedResponse.$Property)
+			}
+
+			Write-Output -InputObject $Temp
+				
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function Set-GoogleDirectoryGroupMemberRole {
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$GroupKey,
+
+        [Parameter()]
+        [ValidateSet("OWNER", "MANAGER", "MEMBER")]
+        [System.String]$Role = "MEMBER",
+
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$UserId,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$ClientId,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:GroupBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$GroupKey/members/$UserId"
+
+		[System.String]$Body = ConvertTo-Json -InputObject @{"email" = $UserId; "role" = $Role } -Compress -Depth 3
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers $Headers -UserAgent $UserAgent
+			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+
+			[System.Collections.Hashtable]$Temp = @{}
+			foreach ($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+			{
+				$Temp.Add($Property, $ParsedResponse.$Property)
+			}
+
+			Write-Output -InputObject $Temp
+				
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
 Function Get-GoogleDirectoryGroupMembership {
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable[]])]
@@ -1159,7 +1482,10 @@ Function Get-GoogleDirectoryGroupMembership {
 
         [Parameter()]
         [ValidateSet("OWNER", "MANAGER", "MEMBER")]
-        [System.String[]]$Roles = @("MEMBER")
+        [System.String[]]$Roles = @("MEMBER"),
+
+		[Parameter()]
+		[Switch]$UseCompression
     )
 
     Begin {
@@ -1187,10 +1513,19 @@ Function Get-GoogleDirectoryGroupMembership {
 
         [System.Collections.Hashtable[]]$Members = @()
 
+		$Headers = @{"Authorization" = "Bearer $BearerToken"}
+		$UserAgent = $script:UserAgent
+
+		if ($UseCompression)
+		{
+			$UserAgent = $script:UserAgentGzip
+			$Headers.Add("Accept-Encoding", "gzip")
+		}
+
         do {
             try
 			{
-				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Temp -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Temp -Method Get -Headers $Headers -UserAgent $UserAgent
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 
 				foreach ($Member in $ParsedResponse.Members)
@@ -1257,6 +1592,96 @@ Function Get-GoogleDirectoryGroupMembership {
 
     End {
     }
+}
+
+Function Remove-GoogleDirectoryGroupMember {
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$GroupKey,
+
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$UserId,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$ClientId,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:GroupBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$GroupKey/members/$UserId"
+
+		try
+		{
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Delete -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
 }
 
 #endregion
@@ -1392,7 +1817,10 @@ Function New-GoogleDirectoryUser {
 
 		[Parameter()]
 		[ValidateRange(1, 5)]
-		[System.Int32]$MaximumRetries = 3
+		[System.Int32]$MaximumRetries = 3,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -1414,11 +1842,20 @@ Function New-GoogleDirectoryUser {
 		$Success = $false
 		$Counter = 0
 
+		$Headers = @{"Authorization" = "Bearer $BearerToken"}
+		$UserAgent = $script:UserAgent
+
+		if ($UseCompression)
+		{
+			$UserAgent = $script:UserAgentGzip
+			$Headers.Add("Accept-Encoding", "gzip")
+		}
+
 		while (-not $Success -and $Counter -le $MaximumRetries)
 		{
 			try
 			{
-				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
 
 				if ($Response.StatusCode -eq 201)
 				{
@@ -1538,7 +1975,10 @@ Function Get-GoogleDirectoryUser {
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
-		[Switch]$Persist
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -1557,7 +1997,16 @@ Function Get-GoogleDirectoryUser {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
 			Write-Output -InputObject $ParsedResponse
@@ -1740,7 +2189,10 @@ Function Set-GoogleDirectoryUser {
 		[Switch]$Persist,
 
 		[Parameter()]
-		[Switch]$PassThru
+		[Switch]$PassThru,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -1760,7 +2212,16 @@ Function Set-GoogleDirectoryUser {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers $Headers -UserAgent $UserAgent
 			
 			if ($PassThru)
 			{
@@ -1880,7 +2341,10 @@ Function Get-GoogleDirectoryUserList {
 		[System.String]$Query,
 
 		[Parameter()]
-		[Switch]$ShowDeleted
+		[Switch]$ShowDeleted,
+
+		[Parameter()]
+		[Switch]$UseCompression
     )
 
     Begin {
@@ -1938,10 +2402,19 @@ Function Get-GoogleDirectoryUserList {
         [System.String]$Url = $Base
         [System.Collections.Hashtable[]]$Users = @()
 
+		$Headers = @{"Authorization" = "Bearer $BearerToken"}
+		$UserAgent = $script:UserAgent
+
+		if ($UseCompression)
+		{
+			$UserAgent = $script:UserAgentGzip
+			$Headers.Add("Accept-Encoding", "gzip")
+		}
+
         do {
             try
 			{
-				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -ErrorAction Stop -UserAgent PowerShell
+				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -ErrorAction Stop -UserAgent $UserAgent
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 
 				foreach ($User in $ParsedResponse.Users)
@@ -2359,7 +2832,10 @@ Function New-GoogleDirectoryUserAlias {
 		[Switch]$Persist,
 
 		[Parameter()]
-		[Switch]$PassThru
+		[Switch]$PassThru,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -2379,7 +2855,16 @@ Function New-GoogleDirectoryUserAlias {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
 
 			if ($PassThru)
 			{
@@ -2461,7 +2946,10 @@ Function Get-GoogleDirectoryUserAlias {
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
-		[Switch]$Persist
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -2481,7 +2969,16 @@ Function Get-GoogleDirectoryUserAlias {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
 			foreach ($Alias in $ParsedResponse.aliases)
@@ -2662,7 +3159,10 @@ Function Get-GoogleDirectoryUserPhoto {
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
-		[Switch]$Persist
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -2681,7 +3181,16 @@ Function Get-GoogleDirectoryUserPhoto {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
 			if (-not [System.String]::IsNullOrEmpty($ParsedResponse.photoData))
@@ -2796,7 +3305,10 @@ Function Set-GoogleDirectoryUserPhoto {
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
-		[Switch]$Persist
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
 	)
 
 	Begin {
@@ -2835,7 +3347,16 @@ Function Set-GoogleDirectoryUserPhoto {
 
 		try
 		{
-			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers $Headers -UserAgent $UserAgent
 			
 			if ($PassThru)
 			{
@@ -2963,6 +3484,813 @@ Function Remove-GoogleDirectoryUserPhoto {
 			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
 			[System.String]$Content = $Reader.ReadToEnd()
 			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+#endregion
+
+#region Organizational Units
+
+Function New-GoogleDirectoryOU {
+	<#
+		.SYNOPSIS
+			Creates a new GSuite Organizational Unit.
+
+		.DESCRIPTION
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None or System.Collections.Hashtable
+
+		
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$Name,
+
+		[Parameter()]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$Description,
+
+		# This can be empty to represent the top level
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNull()]
+		[AllowEmptyString()]
+		[System.String]$ParentOrgUnitPath,
+
+		[Parameter()]
+		[Switch]$BlockInheritance,
+
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$ClientId,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$PassThru,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		if (-not $ParentOrgUnitPath.StartsWith("/"))
+		{
+			$ParentOrgUnitPath = "/$ParentOrgUnitPath"
+		}
+
+		if ($ParentOrgUnitPath.EndsWith("/"))
+		{
+			$ParentOrgUnitPath = $ParentOrgUnitPath.TrimEnd("/")
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/orgunits"
+
+		[System.Collections.Hashtable]$OU = @{"name" = $Name; "parentOrgUnitPath" = $ParentOrgUnitPath}
+
+		if ($BlockInheritance)
+		{
+			$OU.Add("blockInheritance", $true)
+		}
+
+		if ($PSBoundParameters.ContainsKey("Description"))
+		{
+			$OU.Add("description", $Description)
+		}
+
+		[System.String]$Body = ConvertTo-Json -InputObject $OU -Compress -Depth 3
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
+
+			if ($PassThru)
+			{
+				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+				[System.Collections.Hashtable]$Temp = @{}
+				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+				{
+					$Temp.Add($Property, $ParsedResponse.$Property)
+				}
+
+				Write-Output -InputObject $Temp
+			}
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function Set-GoogleDirectoryOU {
+	<#
+		.SYNOPSIS
+			Updates a GSuite Organizational Unit.
+
+		.DESCRIPTION
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None or System.Collections.Hashtable
+
+		
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$OrgUnitPath,
+
+		[Parameter()]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$Name,
+
+		# This can be empty to remove the description
+		[Parameter()]
+		[ValidateNotNull()]
+		[System.String]$Description,
+
+		# This can be empty to represent the top level
+		[Parameter()]
+		[ValidateNotNull()]
+		[System.String]$ParentOrgUnitPath,
+
+		[Parameter()]
+		[Switch]$BlockInheritance,
+
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$ClientId,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$PassThru,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		if ([System.String]::IsNullOrEmpty($ParentOrgUnitPath) -and 
+			[System.String]::IsNullOrEmpty($Description) -and 
+			-not $PSBoundParameters.ContainsKey("BlockInheritance") -and
+			[System.String]::IsNullOrEmpty($Name))
+		{
+			Write-Error -Exception (New-Object -TypeName System.ArgumentException("You must specify a property to update for the OU.")) -ErrorAction Stop
+		}
+
+		if ($OrgUnitPath.StartsWith("/"))
+		{
+			$OrgUnitPath = $OrgUnitPath.TrimStart("/")
+		}
+
+		if ($OrgUnitPath.EndsWith("/"))
+		{
+			$OrgUnitPath = $OrgUnitPath.TrimEnd("/")
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/orgunits/$([System.Uri]::EscapeUriString($OrgUnitPath))"
+
+		[System.Collections.Hashtable]$OU = @{}
+
+		if ($BlockInheritance)
+		{
+			$OU.Add("blockInheritance", $true)
+		}
+
+		if ($PSBoundParameters.ContainsKey("Description"))
+		{
+			$OU.Add("description", $Description)
+		}
+
+		if (-not [System.String]::IsNullOrEmpty($Name))
+		{
+			$OU.Add("name", $Name)
+		}
+
+		if (-not [System.String]::IsNullOrEmpty($ParentOrgUnitPath))
+		{
+			if (-not $ParentOrgUnitPath.StartsWith("/"))
+			{
+				$ParentOrgUnitPath = "/$ParentOrgUnitPath"
+			}
+
+			if ($ParentOrgUnitPath.EndsWith("/"))
+			{
+				$ParentOrgUnitPath = $ParentOrgUnitPath.TrimEnd("/")
+			}
+
+			$OU.Add("parentOrgUnitPath", $ParentOrgUnitPath)
+		}
+
+		[System.String]$Body = ConvertTo-Json -InputObject $OU -Compress -Depth 3
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers $Headers -UserAgent $UserAgent
+
+			if ($PassThru)
+			{
+				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+				[System.Collections.Hashtable]$Temp = @{}
+				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+				{
+					$Temp.Add($Property, $ParsedResponse.$Property)
+				}
+
+				Write-Output -InputObject $Temp
+			}
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function Get-GoogleDirectoryOU {
+	<#
+		.SYNOPSIS
+			Gets a GSuite Organizational Unit.
+
+		.DESCRIPTION
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None or System.Collections.Hashtable
+
+		
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$OrgUnitPath,
+
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$ClientId,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		if ($OrgUnitPath.StartsWith("/"))
+		{
+			$OrgUnitPath = $OrgUnitPath.TrimStart("/")
+		}
+
+		if ($OrgUnitPath.EndsWith("/"))
+		{
+			$OrgUnitPath = $OrgUnitPath.TrimEnd("/")
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/orgunits/$([System.Uri]::EscapeUriString($OrgUnitPath))"
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
+
+			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+			[System.Collections.Hashtable]$Temp = @{}
+			foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+			{
+				$Temp.Add($Property, $ParsedResponse.$Property)
+			}
+
+			Write-Output -InputObject $Temp
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function Get-GoogleDirectoryOUChildren {
+	<#
+		.SYNOPSIS
+			Gets GSuite Organizational Unit children org units.
+
+		.DESCRIPTION
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None or System.Collections.Hashtable
+
+		
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$OrgUnitPath,
+
+		[Parameter()]
+		[Switch]$All,
+
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$ClientId,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		if ($OrgUnitPath.StartsWith("/"))
+		{
+			$OrgUnitPath = $OrgUnitPath.TrimStart("/")
+		}
+
+		if ($OrgUnitPath.EndsWith("/"))
+		{
+			$OrgUnitPath = $OrgUnitPath.TrimEnd("/")
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/orgunits?orgUnitPath=$([System.Uri]::EscapeUriString($OrgUnitPath))"
+
+		if ($All)
+		{
+			$Url += "&type=all"
+		}
+		else
+		{
+			$Url += "&type=children"
+		}
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
+
+			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+			[System.Collections.Hashtable[]]$OUs = @()
+
+			foreach ($OU in $ParsedResponse.organizationalUnits)
+			{
+				[System.Collections.Hashtable]$Temp = @{}
+				foreach($Property in ($OU | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+				{
+					$Temp.Add($Property, $OU.$Property)
+				}
+
+				$OUs += $Temp
+			}
+
+			Write-Output -InputObject $OU
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function Remove-GoogleDirectoryOU {
+	<#
+		.SYNOPSIS
+			Deletes a GSuite Organizational Unit.
+
+		.DESCRIPTION
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None
+
+		
+	#>
+	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "HIGH")]
+	[OutputType()]
+	Param(
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$OrgUnitPath,
+
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$ClientId,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$Force
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		if ($OrgUnitPath.StartsWith("/"))
+		{
+			$OrgUnitPath = $OrgUnitPath.TrimStart("/")
+		}
+
+		if ($OrgUnitPath.EndsWith("/"))
+		{
+			$OrgUnitPath = $OrgUnitPath.TrimEnd("/")
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/orgunits/$([System.Uri]::EscapeUriString($OrgUnitPath))"
+
+		try
+		{
+			$ConfirmMessage = "You are about to delete GSuite OU $OrgUnitPath."
+			$WhatIfDescription = "Deleted OU $OrgUnitPath."
+			$ConfirmCaption = "Delete GSuite OU"
+
+			if ($Force -or $PSCmdlet.ShouldProcess($WhatIfDescription, $ConfirmMessage, $ConfirmCaption))
+			{
+				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Delete -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
+
+				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+				[System.Collections.Hashtable]$Temp = @{}
+				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+				{
+					$Temp.Add($Property, $ParsedResponse.$Property)
+				}
+
+				Write-Output -InputObject $Temp
+			}
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
 			[System.String]$Message = "$StatusCode : $Content"
 
 			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)

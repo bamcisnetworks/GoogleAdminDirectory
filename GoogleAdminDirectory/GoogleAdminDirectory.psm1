@@ -12,6 +12,43 @@ Function New-GoogleDirectoryGroup {
 			Creates a new GSuite group.
 
 		.DESCRIPTION
+			This cmdlet creates a new GSuite group.
+
+		.PARAMETER Email
+			The group's email address.
+
+		.PARAMETER Name
+			The group's display name.
+
+		.PARAMETER Description
+			An optional description for the group.
+
+		.PARAMETER PassThru
+			If specified, the newly created group is passed to the pipeline.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$NewGroup = New-GoogleDirectoryGroup -Email examplegroup@google.com -Name "Example Group" -Description "A new group" -ClientId $Id -PassThru -Persist
+
+			This example creates a new group and returns the newly created group details to the pipeline. The call is authenticated with
+			an access token stored in a client profile, which is refreshed if necessary. Any updated tokens are persisted to disk.
 
 		.INPUTS 
 			None
@@ -19,7 +56,9 @@ Function New-GoogleDirectoryGroup {
 		.OUTPUTS
 			None or System.Collections.Hashtable
 
-		
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -40,10 +79,6 @@ Function New-GoogleDirectoryGroup {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -57,6 +92,10 @@ Function New-GoogleDirectoryGroup {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -65,6 +104,7 @@ Function New-GoogleDirectoryGroup {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -157,12 +197,56 @@ Function Set-GoogleDirectoryGroup {
 			Updates a GSuite group properties.
 
 		.DESCRIPTION
+			This cmdlet updates a GSuite group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER Email
+			The group's new email address.
+
+		.PARAMETER Name
+			The group's new display name.
+
+		.PARAMETER Description
+			An updated description for the group.
+
+		.PARAMETER PassThru
+			If specified, the updated group is passed to the pipeline.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Set-GoogleDirectoryGroup -GroupKey NNN -Email updatedemail@google.com -ClientId $Id -Persist
+
+			Updates the group uniquely identified by NNN with a new email, updatedemail@google.com. The call is authenticated with
+			an access token stored in a client profile, which is refreshed if necessary. Any updated tokens are persisted to disk.
 
 		.INPUTS 
 			None
 		
 		.OUTPUTS
 			None or System.Collections.Hashtable
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -186,10 +270,6 @@ Function Set-GoogleDirectoryGroup {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -203,6 +283,10 @@ Function Set-GoogleDirectoryGroup {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -211,6 +295,7 @@ Function Set-GoogleDirectoryGroup {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -319,12 +404,49 @@ Function New-GoogleDirectoryGroupAlias {
 			Creates a GSuite group alias.
 
 		.DESCRIPTION
+			This cmdlet creates a new alias for a GSuite group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER Alias
+			The alias to create.
+
+		.PARAMETER PassThru
+			If specified, the updated group information is passed to the pipeline.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			New-GoogleDirectoryGroupAlias -GroupKey NNN -Alias bestgroupalias@google.com -ClientId $Id -Persist
+
+			Creates a new alias for the group identified by the unique id NNN.
 
 		.INPUTS 
 			None
 		
 		.OUTPUTS
 			None or System.Collections.Hashtable
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -341,10 +463,6 @@ Function New-GoogleDirectoryGroupAlias {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -358,6 +476,10 @@ Function New-GoogleDirectoryGroupAlias {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -366,6 +488,7 @@ Function New-GoogleDirectoryGroupAlias {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -449,15 +572,56 @@ Function New-GoogleDirectoryGroupAlias {
 Function Get-GoogleDirectoryGroupAlias {
 	<#
 		.SYNOPSIS
-			Gets all aliases for a GSuite group.
+			Gets all GSuite group aliases for a specified group.
 
 		.DESCRIPTION
+			This cmdlet gets all of the aliases assigned to the specified group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Aliases = Get-GoogleDirectoryGroupAlias -GroupKey NNN -ClientId $Id -Persist
+
+			Gets a list of all group aliases for the group identified by NNN.
 
 		.INPUTS 
 			None
 		
 		.OUTPUTS
-			System.Collections.Hashtable[]
+			System.Collection.Hashtable[]
+
+			Each hashtable will follow this format:
+
+			{
+			  "kind": "admin#directory#alias",
+			  "id": string,
+			  "etag": etag,
+			  "primaryEmail": string,
+			  "alias": string
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -470,10 +634,6 @@ Function Get-GoogleDirectoryGroupAlias {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -484,6 +644,10 @@ Function Get-GoogleDirectoryGroupAlias {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -492,6 +656,7 @@ Function Get-GoogleDirectoryGroupAlias {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -580,12 +745,43 @@ Function Remove-GoogleDirectoryGroupAlias {
 			Deletes a GSuite group alias.
 
 		.DESCRIPTION
+			This cmdlet deletes a specified alias from the GSuite group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER AliasId
+			The id of the alias to delete.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Remove-GoogleDirectoryGroupAlias -GroupKey NNN -AliasId "mygroupalias@google.com" -ClientId $Id -Persist
+
+			Removes the specified alias from the group.
 
 		.INPUTS 
 			None
 		
 		.OUTPUTS
-			None or System.Collections.Hashtable
+			None
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -602,16 +798,16 @@ Function Remove-GoogleDirectoryGroupAlias {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
 		[Switch]$Persist
 	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
 
 	Begin {
 	}
@@ -621,6 +817,7 @@ Function Remove-GoogleDirectoryGroupAlias {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -683,12 +880,43 @@ Function Get-GoogleDirectoryGroup {
 			Gets a GSuite group.
 
 		.DESCRIPTION
+			This cmdlet retrieves details about a specified GSuite group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Group = Get-GoogleDirectoryGroup -GroupKey NNN -ClientId $Id -Persist
+
+			Gets details about the group specified by key NNN.
 
 		.INPUTS 
 			None
 		
 		.OUTPUTS
-			None or System.Collections.Hashtable
+			System.Collections.Hashtable
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -701,10 +929,6 @@ Function Get-GoogleDirectoryGroup {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -715,6 +939,10 @@ Function Get-GoogleDirectoryGroup {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -723,6 +951,7 @@ Function Get-GoogleDirectoryGroup {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -799,6 +1028,59 @@ Function Get-GoogleDirectoryGroup {
 }
 
 Function Get-GoogleDirectoryGroupList {
+	<#
+		.SYNOPSIS
+			Gets a list of GSuite groups.
+
+		.DESCRIPTION
+			This cmdlet retrieves details about GSuite groups based on a customer id or domain id. The cmdlet defaults to using
+			my_customer as the customer id, which uses the customer id of the user making the API call.
+
+		.PARAMETER MaxResults
+			The maximum number of results returned in a single call. Specifying a non-zero value for this parameter will page
+			the results so that multiple HTTP calls are made to retrieve all of the results.
+
+		.PARAMETER Domain
+			Retrieves all groups for this sub-domain.
+
+		.PARAMETER CustomerId
+			Retrieves all groups in the account for this customer. This is the default and uses the value my_customer, which
+			represents the customer id of the administrator making the API call.
+		
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Groups = Get-GoogleDirectoryGroupList -ClientId $Id -Persist -UseCompression
+
+			Gets a listing of all of the groups for the admin using the cmdlet. The results are returned using gzip to minimize
+			bandwidth utilization.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			System.Collections.Hashtable[]
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
+	#>
     [CmdletBinding()]
 	[OutputType([System.Collections.Hashtable[]])]
     Param(
@@ -807,12 +1089,6 @@ Function Get-GoogleDirectoryGroupList {
 		[Parameter(Mandatory = $true, ParameterSetName = "TokenCustomerId")]
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
-
-		[Parameter(Mandatory = $true, ParameterSetName = "ProfileDefault")]
-		[Parameter(Mandatory = $true, ParameterSetName = "ProfileDomain")]
-		[Parameter(Mandatory = $true, ParameterSetName = "ProfileCustomerId")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
 
 		[Parameter(ParameterSetName = "ProfileDefault")]
 		[Parameter(ParameterSetName = "ProfileDomain")]
@@ -841,6 +1117,10 @@ Function Get-GoogleDirectoryGroupList {
 		[Switch]$UseCompression
     )
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("ProfileDomain", "ProfileDefault", "ProfileCustomerId") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
     Begin {
     }
 
@@ -849,6 +1129,7 @@ Function Get-GoogleDirectoryGroupList {
 
 		if ($PSCmdlet.ParameterSetName -like "Profile*")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -968,15 +1249,52 @@ Function Get-GoogleDirectoryGroupList {
 Function Get-GoogleDirectoryGroupsForUser {
 	<#
 		.SYNOPSIS
-			Gets a list of GSuite groups for a specific user.
+			Gets a list of GSuite groups assigned to a specified user.
 
 		.DESCRIPTION
+			This cmdlet retrieves details about GSuite groups assigned to a specified user.
+
+		.PARAMETER MaxResults
+			The maximum number of results returned in a single call. Specifying a non-zero value for this parameter will page
+			the results so that multiple HTTP calls are made to retrieve all of the results.
+
+		.PARAMETER UserId
+			The id of the member to retrieve groups for. A member can either be a user or a group. The userKey can be the user's primary email address, 
+			the user's alias email address, a group's primary email address, a group's email alias, or the user's unique id.
+		
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Groups = Get-GoogleDirectoryGroupList -ClientId $Id -Persist -UseCompression
+
+			Gets a listing of all of the groups for the admin using the cmdlet. The results are returned using gzip to minimize
+			bandwidth utilization.
 
 		.INPUTS 
 			None
 		
 		.OUTPUTS
 			System.Collections.Hashtable[]
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -992,10 +1310,6 @@ Function Get-GoogleDirectoryGroupsForUser {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -1006,6 +1320,10 @@ Function Get-GoogleDirectoryGroupsForUser {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -1014,6 +1332,7 @@ Function Get-GoogleDirectoryGroupsForUser {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -1112,12 +1431,40 @@ Function Remove-GoogleDirectoryGroup {
 			Deletes a GSuite group.
 
 		.DESCRIPTION
+			This cmdlet deletes a GSuite group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group to delete.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Remove-GoogleDirectoryGroup -GroupKey NNN -ClientId $Id -Persist
+
+			Deletes the specified group.
 
 		.INPUTS 
 			None
 		
 		.OUTPUTS
-			None or System.Collections.Hashtable
+			None
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/6/2018
 	#>
 	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "HIGH")]
 	[OutputType([System.Collections.Hashtable])]
@@ -1130,10 +1477,6 @@ Function Remove-GoogleDirectoryGroup {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -1144,6 +1487,10 @@ Function Remove-GoogleDirectoryGroup {
 		[Switch]$Force
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -1152,6 +1499,7 @@ Function Remove-GoogleDirectoryGroup {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -1239,10 +1587,6 @@ Function Add-GoogleDirectoryGroupMember {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -1253,6 +1597,10 @@ Function Add-GoogleDirectoryGroupMember {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -1261,6 +1609,7 @@ Function Add-GoogleDirectoryGroupMember {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -1357,10 +1706,6 @@ Function Set-GoogleDirectoryGroupMemberRole {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -1371,6 +1716,10 @@ Function Set-GoogleDirectoryGroupMemberRole {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -1379,6 +1728,7 @@ Function Set-GoogleDirectoryGroupMemberRole {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -1463,10 +1813,6 @@ Function Get-GoogleDirectoryGroupMembership {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -1488,6 +1834,10 @@ Function Get-GoogleDirectoryGroupMembership {
 		[Switch]$UseCompression
     )
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
     Begin {
     }
 
@@ -1496,6 +1846,7 @@ Function Get-GoogleDirectoryGroupMembership {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -1610,16 +1961,16 @@ Function Remove-GoogleDirectoryGroupMember {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
 		[Switch]$Persist
 	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
 
 	Begin {
 	}
@@ -1629,6 +1980,7 @@ Function Remove-GoogleDirectoryGroupMember {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -1802,10 +2154,6 @@ Function New-GoogleDirectoryUser {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -1823,6 +2171,10 @@ Function New-GoogleDirectoryUser {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -1831,13 +2183,13 @@ Function New-GoogleDirectoryUser {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
 
 		[System.String]$Url = "$Base/$UserId"
 		[System.String]$Body = ConvertTo-Json -InputObject $UserProperties -Compress -Depth 3
-
 
 		$Success = $false
 		$Counter = 0
@@ -1967,10 +2319,6 @@ Function Get-GoogleDirectoryUser {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -1981,6 +2329,10 @@ Function Get-GoogleDirectoryUser {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -1989,6 +2341,7 @@ Function Get-GoogleDirectoryUser {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -2178,10 +2531,6 @@ Function Set-GoogleDirectoryUser {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -2195,6 +2544,10 @@ Function Set-GoogleDirectoryUser {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -2203,6 +2556,7 @@ Function Set-GoogleDirectoryUser {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -2290,12 +2644,6 @@ Function Get-GoogleDirectoryUserList {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "ProfileDefault")]
-		[Parameter(Mandatory = $true, ParameterSetName = "ProfileDomain")]
-		[Parameter(Mandatory = $true, ParameterSetName = "ProfileCustomerId")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "ProfileDefault")]
 		[Parameter(ParameterSetName = "ProfileDomain")]
 		[Parameter(ParameterSetName = "ProfileCustomerId")]
@@ -2347,6 +2695,10 @@ Function Get-GoogleDirectoryUserList {
 		[Switch]$UseCompression
     )
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("ProfileDomain", "ProfileDefault", "ProfileCustomerId") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
     Begin {
     }
 
@@ -2355,6 +2707,7 @@ Function Get-GoogleDirectoryUserList {
 
 		if ($PSCmdlet.ParameterSetName -like "Profile*")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -2497,10 +2850,6 @@ Function Remove-GoogleDirectoryUser {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -2511,6 +2860,10 @@ Function Remove-GoogleDirectoryUser {
 		[Switch]$Force
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -2519,6 +2872,7 @@ Function Remove-GoogleDirectoryUser {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -2593,10 +2947,6 @@ Function Restore-GoogleDirectoryUser {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -2607,6 +2957,10 @@ Function Restore-GoogleDirectoryUser {
 		[Switch]$Force
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -2615,6 +2969,7 @@ Function Restore-GoogleDirectoryUser {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -2689,10 +3044,6 @@ Function Invoke-GoogleDirectoryMakeAdmin {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -2703,6 +3054,10 @@ Function Invoke-GoogleDirectoryMakeAdmin {
 		[Switch]$Force
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -2711,6 +3066,7 @@ Function Invoke-GoogleDirectoryMakeAdmin {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -2821,10 +3177,6 @@ Function New-GoogleDirectoryUserAlias {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -2838,6 +3190,10 @@ Function New-GoogleDirectoryUserAlias {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -2846,6 +3202,7 @@ Function New-GoogleDirectoryUserAlias {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -2938,10 +3295,6 @@ Function Get-GoogleDirectoryUserAlias {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -2952,6 +3305,10 @@ Function Get-GoogleDirectoryUserAlias {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -2960,6 +3317,7 @@ Function Get-GoogleDirectoryUserAlias {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -3056,16 +3414,16 @@ Function Remove-GoogleDirectoryUserAlias {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
 		[Switch]$Persist
 	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
 
 	Begin {
 	}
@@ -3075,6 +3433,7 @@ Function Remove-GoogleDirectoryUserAlias {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -3151,10 +3510,6 @@ Function Get-GoogleDirectoryUserPhoto {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -3165,6 +3520,10 @@ Function Get-GoogleDirectoryUserPhoto {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -3173,6 +3532,7 @@ Function Get-GoogleDirectoryUserPhoto {
 
 		if ($PSCmdlet.ParameterSetName -like "Profile*")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -3297,10 +3657,6 @@ Function Set-GoogleDirectoryUserPhoto {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -3311,6 +3667,10 @@ Function Set-GoogleDirectoryUserPhoto {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -3319,6 +3679,7 @@ Function Set-GoogleDirectoryUserPhoto {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -3447,16 +3808,16 @@ Function Remove-GoogleDirectoryUserPhoto {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
 		[Parameter(ParameterSetName = "Profile")]
 		[Switch]$Persist
 	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
 
 	Begin {
 	}
@@ -3466,6 +3827,7 @@ Function Remove-GoogleDirectoryUserPhoto {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -3568,10 +3930,6 @@ Function New-GoogleDirectoryOU {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -3585,6 +3943,10 @@ Function New-GoogleDirectoryOU {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -3593,6 +3955,7 @@ Function New-GoogleDirectoryOU {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -3743,10 +4106,6 @@ Function Set-GoogleDirectoryOU {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -3760,6 +4119,10 @@ Function Set-GoogleDirectoryOU {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -3768,6 +4131,7 @@ Function Set-GoogleDirectoryOU {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -3929,10 +4293,6 @@ Function Get-GoogleDirectoryOU {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -3943,6 +4303,10 @@ Function Get-GoogleDirectoryOU {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -3951,6 +4315,7 @@ Function Get-GoogleDirectoryOU {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -4070,10 +4435,6 @@ Function Get-GoogleDirectoryOUChildren {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -4084,6 +4445,10 @@ Function Get-GoogleDirectoryOUChildren {
 		[Switch]$UseCompression
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -4092,6 +4457,7 @@ Function Get-GoogleDirectoryOUChildren {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}
@@ -4223,10 +4589,6 @@ Function Remove-GoogleDirectoryOU {
         [ValidateNotNullOrEmpty()]
         [System.String]$BearerToken,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "Profile")]
-		[ValidateNotNullOrEmpty()]
-		[System.String]$ClientId,
-
 		[Parameter(ParameterSetName = "Profile")]
 		[System.String]$ProfileLocation,
 
@@ -4237,6 +4599,10 @@ Function Remove-GoogleDirectoryOU {
 		[Switch]$Force
 	)
 
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
 	Begin {
 	}
 
@@ -4245,6 +4611,7 @@ Function Remove-GoogleDirectoryOU {
 
 		if ($PSCmdlet.ParameterSetName -eq "Profile")
 		{
+			$ClientId = $PSBoundParameters["ClientId"]
 			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
 			$BearerToken = $Token["access_token"]
 		}

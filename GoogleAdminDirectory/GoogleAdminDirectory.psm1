@@ -1568,6 +1568,69 @@ Function Remove-GoogleDirectoryGroup {
 #region Group Membership
 
 Function Add-GoogleDirectoryGroupMember {
+	<#
+		.SYNOPSIS
+			Adds a member GSuite group.
+
+		.DESCRIPTION
+			This cmdlet adds a member to a GSuite group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER Role
+			The role to add the member as, either MEMBER, OWNER, or MANAGER. The default is MEMBER.
+
+		.PARAMETER UserId
+			The Id of the user to add to the group.
+
+		.PARAMETER PassThru
+			If specified, the member's membership information is passed to the pipeline.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$MembershipInfo = Add-GoogleDirectoryGroupMember -GroupKey NNN -UserId user@google.com -ClientId $Id -Persist -PassThru
+
+			This example adds user@google.com to the group identified by NNN and returns the user's membership info for the group to 
+			the pipeline. The call is authenticated with an access token stored in a client profile, which is refreshed if necessary. 
+			Any updated tokens are persisted to disk.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None or System.Collections.Hashtable
+
+			This is an example of the member's membership information output:
+			{
+			   "kind": "directory#member",
+			   "id": "group member's unique ID",
+			   "email": "liz@example.com",
+			   "role": "MEMBER",
+			   "type": "GROUP"
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
 	Param(
@@ -1630,15 +1693,19 @@ Function Add-GoogleDirectoryGroupMember {
 			}
 
 			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
-			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
-
-			[System.Collections.Hashtable]$Temp = @{}
-			foreach ($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+			
+			if ($PassThru)
 			{
-				$Temp.Add($Property, $ParsedResponse.$Property)
-			}
+				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 
-			Write-Output -InputObject $Temp
+				[System.Collections.Hashtable]$Temp = @{}
+				foreach ($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+				{
+					$Temp.Add($Property, $ParsedResponse.$Property)
+				}
+
+				Write-Output -InputObject $Temp
+			}
 				
 		}
 		catch [System.Net.WebException]
@@ -1687,6 +1754,69 @@ Function Add-GoogleDirectoryGroupMember {
 }
 
 Function Set-GoogleDirectoryGroupMemberRole {
+	<#
+		.SYNOPSIS
+			Sets the role of a group member.
+
+		.DESCRIPTION
+			This cmdlet sets the role of an existing GSuite group member.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER Role
+			The role the member will be set to, either MEMBER, OWNER, or MANAGER.
+
+		.PARAMETER UserId
+			The Id of the user whose role will be modified.
+
+		.PARAMETER PassThru
+			If specified, the member's membership information is passed to the pipeline.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$MembershipInfo = Set-GoogleDirectoryGroupMemberRole -GroupKey NNN -UserId user@google.com -Role MANAGER -ClientId $Id -Persist -PassThru
+
+			This example changes the member user@google.com from MEMBER to MANAGER in the group identified by NNN and returns the user's membership info for the group to 
+			the pipeline. The call is authenticated with an access token stored in a client profile, which is refreshed if necessary. 
+			Any updated tokens are persisted to disk.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None or System.Collections.Hashtable
+
+			This is an example of the member's membership information output:
+			{
+			   "kind": "directory#member",
+			   "id": "group member's unique ID",
+			   "email": "liz@example.com",
+			   "role": "MEMBER",
+			   "type": "GROUP"
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
 	Param(
@@ -1694,9 +1824,9 @@ Function Set-GoogleDirectoryGroupMemberRole {
         [ValidateNotNullOrEmpty()]
         [System.String]$GroupKey,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateSet("OWNER", "MANAGER", "MEMBER")]
-        [System.String]$Role = "MEMBER",
+        [System.String]$Role,
 
 		[Parameter(Mandatory = $true)]
 		[ValidateNotNullOrEmpty()]
@@ -1713,7 +1843,10 @@ Function Set-GoogleDirectoryGroupMemberRole {
 		[Switch]$Persist,
 
 		[Parameter()]
-		[Switch]$UseCompression
+		[Switch]$UseCompression,
+
+		[Parameter()]
+		[Switch]$PassThru
 	)
 
 	DynamicParam {
@@ -1806,20 +1939,77 @@ Function Set-GoogleDirectoryGroupMemberRole {
 }
 
 Function Get-GoogleDirectoryGroupMembership {
+	<#
+		.SYNOPSIS
+			Gets the membership of a GSuite group.
+
+		.DESCRIPTION
+			This cmdlet gets the membership of a GSuite group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER Roles
+			Filter the results to members with the specified roles. If this is not specified, no filter is applied.
+
+		.PARAMETER MaxResults
+			The maximum number of results returned in a single call. Specifying a non-zero value for this parameter will page
+			the results so that multiple HTTP calls are made to retrieve all of the results.
+			
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Membership = Get-GoogleDirectoryGroupMembership -GroupKey NNN -ClientId $Id -Persist -UseCompression
+
+			This example gets the membership of the group specified by NNN and compresses the returned results. The call 
+			is authenticated with an access token stored in a client profile, which is refreshed if necessary. Any updated tokens are persisted to disk.
+
+		.INPUTS 
+			System.String
+		
+		.OUTPUTS
+			System.Collections.Hashtable[]
+
+			This is an example of the membership information output:
+			{
+				"kind": "directory#member",
+				"id": "group member's unique ID",
+				"email": "liz@example.com",
+				"role": "MANAGER",
+				"type": "GROUP"
+			},
+			{
+				"kind": "directory#member",
+				"id": "group member's unique ID",
+				"email": "radhe@example.com",
+				"role": "MANAGER",
+				"type": "MEMBER"
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable[]])]
     Param(
-        [Parameter(Mandatory = $true, ParameterSetName = "Token")]
-        [ValidateNotNullOrEmpty()]
-        [System.String]$BearerToken,
-
-		[Parameter(ParameterSetName = "Profile")]
-		[System.String]$ProfileLocation,
-
-		[Parameter(ParameterSetName = "Profile")]
-		[Switch]$Persist,
-
-        [Parameter()]
+		[Parameter()]
         [System.UInt32]$MaxResults,
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
@@ -1829,6 +2019,16 @@ Function Get-GoogleDirectoryGroupMembership {
         [Parameter()]
         [ValidateSet("OWNER", "MANAGER", "MEMBER")]
         [System.String[]]$Roles = @("MEMBER"),
+
+        [Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
 
 		[Parameter()]
 		[Switch]$UseCompression
@@ -1946,6 +2146,50 @@ Function Get-GoogleDirectoryGroupMembership {
 }
 
 Function Remove-GoogleDirectoryGroupMember {
+	<#
+		.SYNOPSIS
+			Removes a member from a GSuite group.
+
+		.DESCRIPTION
+			This cmdlet removes a member from a GSuite group.
+
+		.PARAMETER GroupKey
+			The unique Id of the group.
+
+		.PARAMETER UserId
+			The Id of the user to remove from the group.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Remove-GoogleDirectoryGroupMember -GroupKey NNN -UserId user@google.com -ClientId $Id -Persist -UseCompression
+
+			This example removes user@google.com from the group specified by NNN. The call is authenticated with an access 
+			token stored in a client profile, which is refreshed if necessary. Any updated tokens are persisted to disk.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
 	Param(
@@ -2056,9 +2300,8 @@ Function New-GoogleDirectoryUser {
 			- For users on a flexible plan for G Suite, creating users using this API will have monetary impact, and will result in charges to your customer billing account. For more information, see the API billing information.
 			- A G Suite account can include any of your domains. In a multiple domain account, users in one domain can share services with users in other account domains. For more information about users in multiple domains, see the API multiple domain information.
 
-		.PARAMETER UserProperties
-			For an update request, you only need to submit the updated information in your request. Even though 
-			the example data listed below is verbose, you do not need to enter all of the user's properties.
+		.PARAMETER User
+			The properties of the user account to create. Only the required properties need to be specified.
 
 			{
 			"primaryEmail": "liz@example.com",
@@ -2135,13 +2378,46 @@ Function New-GoogleDirectoryUser {
 			"includeInGlobalAddressList": true
 			}
 
+		.PARAMETER MaximumRetries
+			If the query rate for creation requests is too high, you might receive HTTP 503 responses from the API server 
+			indicating that your quota has been exceeded. This value is the number of times the request will be retried
+			using an exponential backoff.
+
+		.PARAMETER PassThru
+			If specified, the new user account properties are returned to the pipeline.
+		
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$NewUser = New-GoogleDirectoryUser -User $User -ClientId $Id -Persist -UseCompression -PassThru
+
+			Creates a new GSuite user with the properties specified in the $User variable.
+
 		.INPUTS 
-			None
+			System.Collections.Hashtable
 		
 		.OUTPUTS
 			None or System.Collections.Hashtable
 
-		
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -2149,6 +2425,10 @@ Function New-GoogleDirectoryUser {
 		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
 		[ValidateNotNull()]
 		[System.Collections.Hashtable]$User,
+
+		[Parameter()]
+		[ValidateRange(1, 5)]
+		[System.Int32]$MaximumRetries = 3,
 
 		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
         [ValidateNotNullOrEmpty()]
@@ -2162,10 +2442,6 @@ Function New-GoogleDirectoryUser {
 
 		[Parameter()]
 		[Switch]$PassThru,
-
-		[Parameter()]
-		[ValidateRange(1, 5)]
-		[System.Int32]$MaximumRetries = 3,
 
 		[Parameter()]
 		[Switch]$UseCompression
@@ -2308,6 +2584,120 @@ Function New-GoogleDirectoryUser {
 }
 
 Function Get-GoogleDirectoryUser {
+	<#
+		.SYNOPSIS
+			Gets the properties of a GSuite user account.
+
+		.DESCRIPTION
+			This gets a GSuite user account.
+
+		.PARAMETER UserId
+			The id of the user to retrieve.			
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.INPUTS 
+			System.String
+		
+		.OUTPUTS
+			System.Collections.Hashtable
+
+			This is an example of the user output:
+			{
+			"primaryEmail": "liz@example.com",
+			"name": {
+			 "givenName": "Elizabeth",
+			 "familyName": "Smith"
+			},
+			"suspended": false,
+			"password": "new user password",
+			"hashFunction": "SHA-1",
+			"changePasswordAtNextLogin": false,
+			"ipWhitelisted": false,
+			"ims": [
+			 {
+			  "type": "work",
+			  "protocol": "gtalk",
+			  "im": "liz_im@talk.example.com",
+			  "primary": true
+			 }
+			],
+			"emails": [
+			 {
+			  "address": "liz@example.com",
+			  "type": "home",
+			  "customType": "",
+			  "primary": true
+			 }
+			],
+			"addresses": [
+			 {
+			  "type": "work",
+			  "customType": "",
+			  "streetAddress": "1600 Amphitheatre Parkway",
+			  "locality": "Mountain View",
+			  "region": "CA",
+			  "postalCode": "94043"
+			 }
+			],
+			"externalIds": [
+			 {
+			  "value": "12345",
+			  "type": "custom",
+			  "customType": "employee"
+			 }
+			],
+			"relations": [
+			 {
+			  "value": "Mom",
+			  "type": "mother",
+			  "customType": ""
+			 },
+			 {
+			  "value": "manager",
+			  "type": "referred_by",
+			  "customType": ""
+			 }
+			],
+			"organizations": [
+			 {
+			  "name": "Google Inc.",
+			  "title": "SWE",
+			  "primary": true,
+			  "type": "work",
+			  "description": "Software engineer"
+			 }
+			],
+			"phones": [
+			 {
+			  "value": "+1 nnn nnn nnnn",
+			  "type": "work"
+			 }
+			],
+			"orgUnitPath": "/corp/engineering",
+			"includeInGlobalAddressList": true
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType()]
 	Param(
@@ -2424,6 +2814,9 @@ Function Set-GoogleDirectoryUser {
 			- When a user is renamed, the old user name is retained as a alias to ensure continuous mail delivery in the case of email forwarding settings and will not be available as a new user name.
 			- In general, we also recommend to not use the user email address as a key for persistent data since the email address is subject to change.
 
+		.PARAMETER UserId
+			The Id of the user to be updated.
+
 		.PARAMETER UserProperties
 			For an update request, you only need to submit the updated information in your request. Even though 
 			the example data listed below is verbose, you do not need to enter all of the user's properties.
@@ -2508,13 +2901,41 @@ Function Set-GoogleDirectoryUser {
 			 "includeInGlobalAddressList": true
 			}
 
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.PARAMETER PassThru
+			If specified, the updated user properties are returned to the pipeline.
+
+		.EXAMPLE
+			Set-GoogleDirectoryUser -UserId liz@example.com -UserProperties @{"name" = @{ "givenName" = "Elizabeth"; "familyName" = "Smith"} } -ClientId $Id -Persist
+
+			Updates the name for the user liz@example.com.
+
 		.INPUTS 
 			None
 		
 		.OUTPUTS
 			None or System.Collections.Hashtable
 
-		
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -2636,25 +3057,81 @@ Function Set-GoogleDirectoryUser {
 }
 
 Function Get-GoogleDirectoryUserList {
+	<#
+		.SYNOPSIS
+			Gets a list of user account details. 
+
+		.DESCRIPTION
+			This cmdlet retrieves all users in a domain or for a specific customer Id. By default, the customer Id for the 
+			current administrator is used and 100 results are returned per API call in alphabetical order of the user's email address.
+		
+			The cmdlet will continue to make API calls on your behalf until all user accounts are retrieved. This can be a lot of data
+			and the use of the -UseCompression parameter is highly suggested.
+
+		.PARAMETER MaxResults
+			The maximum number of results returned in a single call. Specifying a non-zero value for this parameter will page
+			the results so that multiple HTTP calls are made to retrieve all of the results. This defaults to 100.
+
+		.PARAMETER Domain
+			Retrieves all users for this sub-domain.
+
+		.PARAMETER CustomerId
+			Retrieves all users in the account for this customer. This is the default and uses the value my_customer, which
+			represents the customer id of the administrator making the API call.
+
+		.PARAMETER OrderBy
+			Specifies the property used to order the results. This defaults to email.
+
+		.PARAMETER SortOrder
+			If an OrderBy property is specified, then this specifies the order the results are sorted in. If an OrderBy property
+			is not specified, this property is ignored.
+
+		.PARAMETER Query
+			The optional query query string allows searching over many fields in a user profile, including both core and custom fields. 
+			See https://developers.google.com/admin-sdk/directory/v1/guides/search-users for examples.
+
+		.PARAMETER ShowDeleted
+			If this is specified, users deleted within the last 5 days are shown instead of non-deleted users.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.PARAMETER PassThru
+			If specified, the updated user properties are returned to the pipeline.
+
+		.EXAMPLE
+			$Users = Get-GoogleDirectoryUserList -ClientId $Id -Persist -UseCompression
+
+			Gets all users in the same account as the administrator making the call. The results are compressed in flight.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			System.Collections.Hashtable[]
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
     [CmdletBinding()]
     Param(
-		[Parameter(Mandatory = $true, ParameterSetName = "TokenDefault")]
-		[Parameter(Mandatory = $true, ParameterSetName = "TokenDomain")]
-		[Parameter(Mandatory = $true, ParameterSetName = "TokenCustomerId")]
-        [ValidateNotNullOrEmpty()]
-        [System.String]$BearerToken,
-
-		[Parameter(ParameterSetName = "ProfileDefault")]
-		[Parameter(ParameterSetName = "ProfileDomain")]
-		[Parameter(ParameterSetName = "ProfileCustomerId")]
-		[System.String]$ProfileLocation,
-
-		[Parameter(ParameterSetName = "ProfileDefault")]
-		[Parameter(ParameterSetName = "ProfileDomain")]
-		[Parameter(ParameterSetName = "ProfileCustomerId")]
-		[Switch]$Persist,
-
-        [Parameter()]
+		 [Parameter()]
         [System.UInt32]$MaxResults,
 
 		[Parameter(Mandatory = $true, ParameterSetName = "TokenDomain")]
@@ -2690,6 +3167,22 @@ Function Get-GoogleDirectoryUserList {
 
 		[Parameter()]
 		[Switch]$ShowDeleted,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "TokenDefault")]
+		[Parameter(Mandatory = $true, ParameterSetName = "TokenDomain")]
+		[Parameter(Mandatory = $true, ParameterSetName = "TokenCustomerId")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(ParameterSetName = "ProfileDefault")]
+		[Parameter(ParameterSetName = "ProfileDomain")]
+		[Parameter(ParameterSetName = "ProfileCustomerId")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "ProfileDefault")]
+		[Parameter(ParameterSetName = "ProfileDomain")]
+		[Parameter(ParameterSetName = "ProfileCustomerId")]
+		[Switch]$Persist,
 
 		[Parameter()]
 		[Switch]$UseCompression

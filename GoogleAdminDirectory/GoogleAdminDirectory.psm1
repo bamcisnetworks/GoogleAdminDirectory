@@ -136,11 +136,7 @@ Function New-GoogleDirectoryGroup {
 			{
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -341,13 +337,7 @@ Function Set-GoogleDirectoryGroup {
 
 			if ($PassThru)
 			{
-				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
-			
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -514,11 +504,7 @@ Function New-GoogleDirectoryGroupAlias {
 			{
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -682,11 +668,7 @@ Function Get-GoogleDirectoryGroupAlias {
 
 			foreach ($Alias in $ParsedResponse.aliases)
 			{
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($Alias | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $Alias.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $Alias
 
 				$Aliases += $Temp
 			}
@@ -973,11 +955,7 @@ Function Get-GoogleDirectoryGroup {
 
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-			[System.Collections.Hashtable]$Temp = @{}
-			foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-			{
-				$Temp.Add($Property, $ParsedResponse.$Property)
-			}
+			[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 			Write-Output -InputObject $Temp
 		}
@@ -1180,11 +1158,7 @@ Function Get-GoogleDirectoryGroupList {
 				
 				foreach ($Group in $ParsedResponse.Groups)
 				{
-					[System.Collections.Hashtable]$Temp = @{}
-					foreach ($Property in ($Group | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-					{
-						$Temp.Add($Property, $Group.$Property)
-					}
+					[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $Group
 
 					$Groups += $Temp
 				}
@@ -1360,11 +1334,7 @@ Function Get-GoogleDirectoryGroupsForUser {
 			
 				foreach ($Group in $ParsedResponse.Groups)
 				{
-					[System.Collections.Hashtable]$Temp = @{}
-					foreach($Property in ($Group | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-					{
-						$Temp.Add($Property, $Group.$Property)
-					}
+					[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $Group
 
 					$Groups += $Temp
 				}
@@ -1698,15 +1668,10 @@ Function Add-GoogleDirectoryGroupMember {
 			{
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach ($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
-				
 		}
 		catch [System.Net.WebException]
 		{
@@ -1884,11 +1849,7 @@ Function Set-GoogleDirectoryGroupMemberRole {
 			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers $Headers -UserAgent $UserAgent
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 
-			[System.Collections.Hashtable]$Temp = @{}
-			foreach ($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-			{
-				$Temp.Add($Property, $ParsedResponse.$Property)
-			}
+			[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 			Write-Output -InputObject $Temp
 				
@@ -2081,11 +2042,7 @@ Function Get-GoogleDirectoryGroupMembership {
 
 				foreach ($Member in $ParsedResponse.Members)
 				{
-					[System.Collections.Hashtable]$Temp = @{}
-					foreach ($Property in ($Member | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-					{
-						$Temp.Add($Property, $Member.$Property)
-					}
+					[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $Member
 
 					$Members += $Temp
 				}
@@ -2491,11 +2448,7 @@ Function New-GoogleDirectoryUser {
 					{
 						[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-						[System.Collections.Hashtable]$Temp = @{}
-						foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-						{
-							$Temp.Add($Property, $ParsedResponse.$Property)
-						}
+						[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 						Write-Output -InputObject $Temp
 					}
@@ -2592,7 +2545,7 @@ Function Get-GoogleDirectoryUser {
 			This gets a GSuite user account.
 
 		.PARAMETER UserId
-			The id of the user to retrieve.			
+			The id of the user to retrieve.	The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses.		
 
 		.PARAMETER UseCompression
 			If specified, the returned data is compressed using gzip.
@@ -2752,7 +2705,9 @@ Function Get-GoogleDirectoryUser {
 			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-			Write-Output -InputObject $ParsedResponse
+			[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
+
+			Write-Output -InputObject $Temp
 		}
 		catch [System.Net.WebException]
 		{
@@ -2815,7 +2770,7 @@ Function Set-GoogleDirectoryUser {
 			- In general, we also recommend to not use the user email address as a key for persistent data since the email address is subject to change.
 
 		.PARAMETER UserId
-			The Id of the user to be updated.
+			The Id of the user to be updated. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses. 
 
 		.PARAMETER UserProperties
 			For an update request, you only need to submit the updated information in your request. Even though 
@@ -3002,11 +2957,7 @@ Function Set-GoogleDirectoryUser {
 			{
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -3265,11 +3216,7 @@ Function Get-GoogleDirectoryUserList {
 
 				foreach ($User in $ParsedResponse.Users)
 				{
-					[System.Collections.Hashtable]$Temp = @{}
-					foreach ($Property in ($User | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-					{
-						$Temp.Add($Property, $User.$Property)
-					}
+					[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $User
 
 					$Users += $Temp
 				}
@@ -3323,7 +3270,7 @@ Function Get-GoogleDirectoryUserList {
 
         } while ($NextToken -ne $null)
 
-        Write-Output -InputObject $Groups 
+        Write-Output -InputObject $Users 
     }
 
     End {
@@ -3332,6 +3279,47 @@ Function Get-GoogleDirectoryUserList {
 }
 
 Function Remove-GoogleDirectoryUser {
+	<#
+		.SYNOPSIS
+			Deletes a GSuite user.
+
+		.DESCRIPTION
+			This cmdlet deletes a GSuite user. After the user is deleted, they will no longer be able to login in. A deleted
+			user account can be restored within 5 days of deletion.
+
+		.PARAMETER UserId
+			The Id of the user to be deleted. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses. 
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Remove-GoogleDirectoryUser -UserId liz@example.com -ClientId $Id -Persist -Force
+
+			This deletes the user liz@example.com using stored client credentials and bypasses confirmation.
+
+		.INPUTS
+			System.String
+
+		.OUTPUTS
+			None
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "HIGH")]
 	[OutputType()]
 	Param(
@@ -3429,6 +3417,48 @@ Function Remove-GoogleDirectoryUser {
 }
 
 Function Restore-GoogleDirectoryUser {
+	<#
+		.SYNOPSIS
+			Restores a deleted GSuite user.
+
+		.DESCRIPTION
+			This cmdlet restores a deleted GSuite user that has been deleted within the last 5 days.
+
+		.PARAMETER UserId
+			The Id of the user to restore. The UserId is the unique user id found in the response of the retrieve 
+			users deleted within the past 5 days operation. The user's primary email address or one of the user's 
+			alias email addresses cannot be used in the UserId for this operation.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Restore-GoogleDirectoryUser -UserId 12309329403209438205 -ClientId $Id -Persist -Force
+
+			This restores (undeletes) the user 12309329403209438205 using stored client credentials and bypasses confirmation.
+
+		.INPUTS
+			System.String
+
+		.OUTPUTS
+			None
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "HIGH")]
 	[OutputType()]
 	Param(
@@ -3526,6 +3556,46 @@ Function Restore-GoogleDirectoryUser {
 }
 
 Function Invoke-GoogleDirectoryMakeAdmin {
+	<#
+		.SYNOPSIS
+			Makes a GSuite users a super administrator.
+
+		.DESCRIPTION
+			This cmdlet elevates a user's permissions to the super administrator role.
+
+		.PARAMETER UserId
+			The Id of the user to make a super administrator. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Invoke-GoogleDirectoryMakeAdmin -UserId liz@example.com -ClientId $Id -Persist -Force
+
+			This makes the user liz@example.com a super administrator using stored client credentials and bypasses confirmation.
+
+		.INPUTS
+			System.String
+
+		.OUTPUTS
+			None
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "HIGH")]
 	[OutputType([System.Boolean])]
 	Param(
@@ -3642,18 +3712,52 @@ Function Invoke-GoogleDirectoryMakeAdmin {
 Function New-GoogleDirectoryUserAlias {
 	<#
 		.SYNOPSIS
-			Creates a new GSuite user alias.
+			Creates a new alias for a GSuite user.
 
 		.DESCRIPTION
-			
-		
-		.INPUTS 
+			This cmdlet creates a new alias for a GSuite user. The maximum number of aliases per user is 30.
+
+		.PARAMETER UserId
+			The Id of the user to create an alias for. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses.
+
+		.PARAMETER UserAlias
+			The email alias to create for the user, like elizabeth@example.com.
+
+		.PARAMETER PassThru
+			If specified the new user alias is returned to the pipeline.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.EXAMPLE
+			New-GoogleDirectoryUserAlias -UserId liz@example.com -UserAlias elizabeth@example.com -ClientId $Id -Persist
+
+			This creates a new alias, elizabeth@example.com, for the user liz@example.com using stored client credentials and bypasses confirmation.
+
+		.INPUTS
 			None
-		
+
 		.OUTPUTS
 			None or System.Collections.Hashtable
 
-		
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -3720,11 +3824,7 @@ Function New-GoogleDirectoryUserAlias {
 			{
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -3777,6 +3877,52 @@ Function New-GoogleDirectoryUserAlias {
 }
 
 Function Get-GoogleDirectoryUserAlias {
+	<#
+		.SYNOPSIS
+			Retrieves all of the aliases for a GSuite user.
+
+		.DESCRIPTION
+			This cmdlet retrieves all of the aliases for a GSuite user. All user aliases are returned in 
+			alphabetical order. There is no page size such as the maxResults query string or pagination used 
+			for the 'Retrieve all aliases' response. The returned aliases are the editable user email alias in 
+			the account's primary domain or subdomains. 
+
+		.PARAMETER UserId
+			The Id of the user to get the aliases of. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.EXAMPLE
+			$Aliases = Get-GoogleDirectoryUserAlias -UserId liz@example.com -ClientId $Id -Persist
+
+			Gets all of the aliases for the user liz@example.com using stored client credentials and bypasses confirmation.
+
+		.INPUTS
+			System.String
+
+		.OUTPUTS
+			System.Collections.Hashtable[]
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable[]])]
 	Param(
@@ -3834,12 +3980,7 @@ Function Get-GoogleDirectoryUserAlias {
 			
 			foreach ($Alias in $ParsedResponse.aliases)
 			{
-				[System.Collections.Hashtable]$Temp = @{}
-
-				foreach ($Property in ($Alias | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $Alias.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $Alias
 
 				$Aliases += $Temp
 			}
@@ -3892,6 +4033,49 @@ Function Get-GoogleDirectoryUserAlias {
 }
 
 Function Remove-GoogleDirectoryUserAlias {
+	<#
+		.SYNOPSIS
+			Deletes an alias for a GSuite user.
+
+		.DESCRIPTION
+			This cmdlet deletes a specified alias for a GSuite user.
+
+		.PARAMETER UserId
+			The Id of the user to delete an alias for. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses.
+
+		.PARAMETER UserAlias
+			The alias to delete. This parameter is the alias' email address that is being deleted.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Remove-GoogleDirectoryUserAlias -UserId liz@example.com -UserAlias elizabeth@example.com -ClientId $Id -Persist -Force
+
+			Deletes the elizabeth@example.com alias for the user liz@example.com using stored client credentials and bypasses confirmation.
+
+		.INPUTS
+			None
+
+		.OUTPUTS
+			None
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType()]
 	Param(
@@ -3988,6 +4172,81 @@ Function Remove-GoogleDirectoryUserAlias {
 #region User Photos
 
 Function Get-GoogleDirectoryUserPhoto {
+	<#
+		.SYNOPSIS
+			Gets one photo thumbnail for a GSuite user.
+
+		.DESCRIPTION
+			This cmdlet retrieves one photo thumbnail, the lastest Gmail Chat profile photo for a user. The details of the photo and
+			the photo base64 data are returned to the pipeline. Optionally, the photo data can also be written out to a file. If you choose
+			to write the photo data to a file, you should check the mimeType property returned with the object to make sure you use
+			the correct file extension.
+
+			The output photoData property of the object returned to the pipeline is web safe base64 encoded, meaning:
+
+			- The slash (/) character is replaced with the underscore (_) character.
+			- The plus sign (+) character is replaced with the hyphen (-) character.
+			- The equals sign (=) character is replaced with the asterisk (*).
+			- For padding, the period (.) character is used instead of the RFC-4648 baseURL definition which uses the equals sign (=) for padding. This is done to simplify URL-parsing.
+			- Whatever the size of the photo being uploaded, the API downsizes it proportionally to 96x96 pixels.
+		
+		.PARAMETER UserId
+			The Id of the user to get the photo of. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses.
+
+		.PARAMETER OutFile
+			The path to a file where the photo data will be written. If the directory path does not exist, it will be created.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.EXAMPLE
+			$PhotoData = Get-GoogleDirectoryUserPhoto -UserId liz@example.com -ClientId $Id -Persist
+				
+			Gets the photo data for the user liz@example.com using stored client credentials and bypasses confirmation.
+
+		.EXAMPLE
+			$PhotoData = Get-GoogleDirectoryUserPhoto -OutFile "c:\users\liz\desktop\thumbnail.txt" -UserId liz@example.com -ClientId $Id -Persist
+			$MimeType = $PhotoData["mimeType"]		
+
+			Gets the photo data for the user liz@example.com using stored client credentials and bypasses confirmation. The base64 data
+			is written to the specified file. The mimetype should be checked to adjust the extension of the output file to make it viewable.
+
+		.INPUTS
+			System.String
+
+		.OUTPUTS
+			System.Collections.Hashtable
+		
+			This is a JSON representation of the output data:
+			{
+			 "kind": "directory#user#photo",
+			 "id": "the unique user id",
+			 "primaryEmail": "liz@example.com",
+			 "mimeType": "the photo mime type",
+			 "height": "the photo height in pixels",
+			 "width": "the photo width in pixels",
+			 "photoData": "web safe base64 encoded photo data"
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
 	Param(
@@ -4076,11 +4335,7 @@ Function Get-GoogleDirectoryUserPhoto {
 				}
 			}
 
-			[System.Collections.Hashtable]$Temp = @{}
-			foreach ($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-			{
-				$Temp.Add($Property, $ParsedResponse.$Property)
-			}
+			[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 			Write-Output -InputObject $Temp
 		}
@@ -4130,6 +4385,66 @@ Function Get-GoogleDirectoryUserPhoto {
 }
 
 Function Set-GoogleDirectoryUserPhoto {
+	<#
+		.SYNOPSIS
+			Sets the photo for a GSuite user.
+
+		.DESCRIPTION
+			This cmdlet updates a user's photo. In this version of the API, a photo is the user's 
+			latest Gmail Chat profile photo. This is different from the Google+ profile photo. 
+			When updating a photo, the height and width are ignored by the API.
+		
+		.PARAMETER UserId
+			The Id of the user to set the photo of. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses.
+
+		.PARAMETER Path
+			The path to the file containing the photo to be uploaded. The file data will be converted to web safe base64.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.EXAMPLE
+			$PhotoData = Set-GoogleDirectoryUserPhoto -UserId liz@example.com -Path c:\users\liz\desktop\photo.jpg -PassThru -ClientId $Id -Persist
+				
+			Sets the photo data for the user liz@example.com using stored client credentials and bypasses confirmation. The uploaded photo
+			information is returned to the pipeline.
+
+		.INPUTS
+			None
+
+		.OUTPUTS
+			None or System.Collections.Hashtable
+		
+			This is a JSON representation of the output data:
+			{
+			 "kind": "directory#user#photo",
+			 "id": "the unique user id",
+			 "primaryEmail": "liz@example.com",
+			 "mimeType": "the photo mime type",
+			 "height": "the photo height in pixels",
+			 "width": "the photo width in pixels",
+			 "photoData": "web safe base64 encoded photo data"
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType()]
 	Param(
@@ -4235,11 +4550,7 @@ Function Set-GoogleDirectoryUserPhoto {
 					$ParsedResponse.photoData = $ParsedResponse.photoData.Replace("_", "/").Replace("-", "+").Replace("*", "=")
 				}
 
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach ($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -4290,6 +4601,47 @@ Function Set-GoogleDirectoryUserPhoto {
 }
 
 Function Remove-GoogleDirectoryUserPhoto {
+	<#
+		.SYNOPSIS
+			Deletes a GSuite user's photo.
+
+		.DESCRIPTION
+			This cmdlet deletes a user's photo. Once deleted, the user's photo is not shown. 
+			Wherever a user's photo is required, a silhouette will be shown instead.
+
+		.PARAMETER UserId
+			The Id of the user to delete the photo of. The UserId can be the user's primary email address, the unique user id, or one of the user's alias email addresses.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Remove-GoogleDirectoryUserPhoto -UserId liz@example.com -ClientId $Id -Persist
+				
+			Deletes the photo for the user liz@example.com using stored client credentials and bypasses confirmation.
+
+		.INPUTS
+			None
+
+		.OUTPUTS
+			None
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
+	#>
 	[CmdletBinding()]
 	[OutputType()]
 	Param(
@@ -4383,9 +4735,53 @@ Function Remove-GoogleDirectoryUserPhoto {
 Function New-GoogleDirectoryOU {
 	<#
 		.SYNOPSIS
-			Creates a new GSuite Organizational Unit.
+			Creates a GSuite organizational unit.
 
 		.DESCRIPTION
+			This cmdlet creates a new organizational unit. 
+
+		.PARAMETER Name
+			The name of the new organizational unit.
+
+		.PARAMETER Description
+			An optional description of the organizational unit.
+
+		.PARAMETER ParentOrgUnit
+			The parent organizational unit to this new unit. This parameter must be the path of an existing organizational unit.
+
+		.PARAMETER BlockInheritance
+			If set, the new organizational unit will not receive policies inherited from its parent. 
+
+		.PARAMETER CustomerId
+			If you are an administrator creating an organizational unit, use my_customer. This is the default. If you 
+			are reseller creating an organizational unit for a resold customer, use customerId. To retrieve the 
+			customerId, use the Retrieve a user operation.
+
+		.PARAMETER PassThru
+			If specified, the new organizational unit properties are returned to the pipeline.
+		
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$OU = New-GoogleDirectoryOU -Name Sales -ParentOrgUnit "/my_org/business" -ClientId $Id -Persist -UseCompression -PassThru
+
+			Creates a new organizational unit called sales unit the parent /my_org/business.
 
 		.INPUTS 
 			None
@@ -4393,7 +4789,20 @@ Function New-GoogleDirectoryOU {
 		.OUTPUTS
 			None or System.Collections.Hashtable
 
-		
+			This is a JSON representation of the output:
+
+			{
+				"kind": "directory#orgUnit",
+				"name": "sales_support",
+				"description": "The sales support team",
+				"orgUnitPath": "/corp/support/sales_support",
+				"parentOrgUnitPath": "/corp/support",
+				"blockInheritance": false
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -4406,10 +4815,8 @@ Function New-GoogleDirectoryOU {
 		[ValidateNotNullOrEmpty()]
 		[System.String]$Description,
 
-		# This can be empty to represent the top level
 		[Parameter(Mandatory = $true)]
 		[ValidateNotNull()]
-		[AllowEmptyString()]
 		[System.String]$ParentOrgUnitPath,
 
 		[Parameter()]
@@ -4496,11 +4903,7 @@ Function New-GoogleDirectoryOU {
 			{
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -4554,9 +4957,67 @@ Function New-GoogleDirectoryOU {
 Function Set-GoogleDirectoryOU {
 	<#
 		.SYNOPSIS
-			Updates a GSuite Organizational Unit.
+			Updates a GSuite organizational unit.
 
 		.DESCRIPTION
+			This cmdlet updates an organizational unit. 
+
+			- You only need to submit the updated information in your request. You do not need to enter 
+				all of the group's properties in the request.
+			- If a user was not assigned to a specific organizational unit when the user account was created, 
+				the account is in the top-level organizational unit.
+			- You can move an organizational unit to another part of your account's organization structure 
+				by setting the parentOrgUnitPath property in the request. It is important to note, that moving 
+				an organizational unit can change the services and settings for the users in the organizational 
+				unit being moved.
+
+		.PARAMETER OrgUnitPath
+			The path to the organizational unit to be modified.
+
+		.PARAMETER Name
+			The new name of the organizational unit.
+
+		.PARAMETER Description
+			The new description for the organizational unit.
+
+		.PARAMETER ParentOrgUnit
+			The new parent organization unit for this OU. Setting this parameter will move the OU within the OU tree structure.
+			This parameter must be the path of an existing organizational unit.
+
+		.PARAMETER BlockInheritance
+			If set to true, the new organizational unit will not receive policies inherited from its parent. If set to false,
+			the OU will received policies inherited from the OU tree.
+
+		.PARAMETER CustomerId
+			If you are an administrator updating an organizational unit, use my_customer. This is the default. If you 
+			are reseller updating an organizational unit for a resold customer, use customerId. To retrieve the 
+			customerId, use the Retrieve a user operation.
+
+		.PARAMETER PassThru
+			If specified, the updated organizational unit is returned to the pipeline.
+		
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$OU = Set-GoogleDirectoryOU -Name CommercialSales -OrgUnitPath "/my_org/business/sales" -ClientId $Id -Persist -UseCompression -PassThru
+
+			This examples updates the name of the OU 'sales' to 'commercialsales'.
 
 		.INPUTS 
 			None
@@ -4564,7 +5025,20 @@ Function Set-GoogleDirectoryOU {
 		.OUTPUTS
 			None or System.Collections.Hashtable
 
-		
+			This is a JSON representation of the output:
+
+			{
+				"kind": "directory#orgUnit",
+				"name": "sales_support",
+				"description": "The sales support team",
+				"orgUnitPath": "/corp/support/sales_support",
+				"parentOrgUnitPath": "/corp/support",
+				"blockInheritance": false
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -4583,13 +5057,12 @@ Function Set-GoogleDirectoryOU {
 		[ValidateNotNull()]
 		[System.String]$Description,
 
-		# This can be empty to represent the top level
 		[Parameter()]
-		[ValidateNotNull()]
+		[ValidateNotNullOrEmpty()]
 		[System.String]$ParentOrgUnitPath,
 
 		[Parameter()]
-		[Switch]$BlockInheritance,
+		[System.Boolean]$BlockInheritance,
 
 		[Parameter()]
         [ValidateNotNullOrEmpty()]
@@ -4651,9 +5124,9 @@ Function Set-GoogleDirectoryOU {
 
 		[System.Collections.Hashtable]$OU = @{}
 
-		if ($BlockInheritance)
+		if ($PSBoundParameters.ContainsKey("BlockInheritance"))
 		{
-			$OU.Add("blockInheritance", $true)
+			$OU.Add("blockInheritance", $BlockInheritance)
 		}
 
 		if ($PSBoundParameters.ContainsKey("Description"))
@@ -4700,11 +5173,7 @@ Function Set-GoogleDirectoryOU {
 			{
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -4758,17 +5227,62 @@ Function Set-GoogleDirectoryOU {
 Function Get-GoogleDirectoryOU {
 	<#
 		.SYNOPSIS
-			Gets a GSuite Organizational Unit.
+			Gets a GSuite organizational unit.
 
 		.DESCRIPTION
+			This cmdlet gets an organizational unit details. 
+
+		.PARAMETER OrgUnitPath
+			The path to the organizational unit to retrieve.
+
+		.PARAMETER CustomerId
+			If you are an administrator getting an organizational unit, use my_customer. This is the default. If you 
+			are reseller getting an organizational unit for a resold customer, use customerId. To retrieve the 
+			customerId, use the Retrieve a user operation.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$OU = Get-GoogleDirectoryOU -OrgUnitPath "/my_org/business/sales" -ClientId $Id -Persist -UseCompression
+
+			This examples gets the org unit details for the 'sales' OU.
 
 		.INPUTS 
-			None
+			System.String
 		
 		.OUTPUTS
 			None or System.Collections.Hashtable
 
-		
+			This is a JSON representation of the output:
+
+			{
+				"kind": "directory#orgUnit",
+				"name": "sales_support",
+				"description": "The sales support team",
+				"orgUnitPath": "/corp/support/sales_support",
+				"parentOrgUnitPath": "/corp/support",
+				"blockInheritance": false
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -4840,11 +5354,7 @@ Function Get-GoogleDirectoryOU {
 
 			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
 			
-			[System.Collections.Hashtable]$Temp = @{}
-			foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-			{
-				$Temp.Add($Property, $ParsedResponse.$Property)
-			}
+			[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 			Write-Output -InputObject $Temp
 		}
@@ -4897,17 +5407,97 @@ Function Get-GoogleDirectoryOU {
 Function Get-GoogleDirectoryOUChildren {
 	<#
 		.SYNOPSIS
-			Gets GSuite Organizational Unit children org units.
+			Gets a GSuite organizational unit children organizational units.
 
 		.DESCRIPTION
+			This cmdlet gets the children of an organizational unit. This defaults only to direct children, but
+			if the -All parameter is specified, all children are enumerated recursively through the tree structure.
+
+		.PARAMETER OrgUnitPath
+			The path to the organizational unit to retrieve children from.
+
+		.PARAMETER All
+			If specified, all of the children in the tree structure are returned, not just the direct children of the OU.
+
+		.PARAMETER CustomerId
+			If you are an administrator, use my_customer. This is the default. If you 
+			are reseller getting an OU for a resold customer, use customerId. To retrieve the 
+			customerId, use the Retrieve a user operation.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Children = Get-GoogleDirectoryOUChildren -OrgUnitPath "/my_org/business/sales" -ClientId $Id -Persist -UseCompression
+
+			This examples gets the direct children of the 'sales' OU.
+
+		.EXAMPLE
+			$Children = Get-GoogleDirectoryOUChildren -OrgUnitPath "/my_org/business/sales" -All -ClientId $Id -Persist -UseCompression
+
+			This examples gets all of the children of the 'sales' OU.
 
 		.INPUTS 
-			None
+			System.String
 		
 		.OUTPUTS
-			None or System.Collections.Hashtable
+			System.Collections.Hashtable[]
 
-		
+			This is a JSON representation of the output:
+
+			[
+				{
+					"kind": "directory#orgUnit",
+					"name": "sales",
+					"description": "The corporate sales team",
+					"orgUnitPath": "/corp/sales",
+					"parentOrgUnitPath": "/corp",
+					"blockInheritance": false
+				},
+				{
+					"kind": "directory#orgUnit",
+					"name": "frontline sales",
+					"description": "The frontline sales team",
+					"orgUnitPath": "/corp/sales/frontline sales",
+					"parentOrgUnitPath": "/corp/sales",
+					"blockInheritance": false
+				},
+				{
+					"kind": "directory#orgUnit",
+					"name": "support",
+					"description": "The corporate support team",
+					"orgUnitPath": "/corp/support",
+					"parentOrgUnitPath": "/corp",
+					"blockInheritance": false
+				},
+				{
+					"kind": "directory#orgUnit",
+					"name": "sales_support",
+					"description": "The BEST support team",
+					"orgUnitPath": "/corp/support/sales_support",
+					"parentOrgUnitPath": "/corp/support",
+					"blockInheritance": false
+				}
+		  ]
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
 	#>
 	[CmdletBinding()]
 	[OutputType([System.Collections.Hashtable])]
@@ -4995,16 +5585,12 @@ Function Get-GoogleDirectoryOUChildren {
 
 			foreach ($OU in $ParsedResponse.organizationalUnits)
 			{
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($OU | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
-				{
-					$Temp.Add($Property, $OU.$Property)
-				}
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				$OUs += $Temp
 			}
 
-			Write-Output -InputObject $OU
+			Write-Output -InputObject $OUs
 		}
 		catch [System.Net.WebException]
 		{
@@ -5055,17 +5641,51 @@ Function Get-GoogleDirectoryOUChildren {
 Function Remove-GoogleDirectoryOU {
 	<#
 		.SYNOPSIS
-			Deletes a GSuite Organizational Unit.
+			Delets a GSuite organizational unit.
 
 		.DESCRIPTION
+			This cmdlet deletes an orgaizational unit. You can only delete organizational units 
+			that do not have any child organizational units or any users assigned to them. You 
+			need to reassign users to other organizational units and remove any child organizational 
+			units before deleting.
+
+		.PARAMETER OrgUnitPath
+			The path to the organizational unit to delete.
+
+		.PARAMETER CustomerId
+			If you are an administrator deleting an organizational unit, use my_customer. This is the default. If you 
+			are reseller deleting an organizational unit for a resold customer, use customerId. To retrieve the 
+			customerId, use the Retrieve a user operation.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			Remove-GoogleDirectoryOU -OrgUnitPath "/my_org/business/sales" -Force -ClientId $Id -Persist -UseCompression
+
+			This examples deletes the 'sales' OU and bypasses confirmation.
 
 		.INPUTS 
-			None
+			System.String
 		
 		.OUTPUTS
 			None
 
-		
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/12/2018
 	#>
 	[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "HIGH")]
 	[OutputType()]
@@ -5132,12 +5752,808 @@ Function Remove-GoogleDirectoryOU {
 				[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Delete -Headers @{"Authorization" = "Bearer $BearerToken"} -UserAgent PowerShell
 
 				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
-			
-				[System.Collections.Hashtable]$Temp = @{}
-				foreach($Property in ($ParsedResponse | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+			}
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+#endregion
+
+#region Roles
+
+Function Get-GoogleDirectoryPrivileges {
+	<#
+		.SYNOPSIS
+			Gets a list of supported privileges.
+
+		.DESCRIPTION
+			This cmdlet gets a list of supported privileges. 
+
+		.PARAMETER CustomerId
+			If you are an administrator getting privileges in your own domain, use my_customer as the customer ID. This is the default.
+			If you are reseller getting privileges for one of your customers, use the customer ID returned by the Retrieve a user operation.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Privileges = Get-GoogleDirectoryPrivileges -ClientId $Id -Persist -UseCompression
+
+			This examples gets the supported privileges for the account supporting the current administrator.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			System.Collections.Hashtable[]
+
+			This is a JSON representation of the output:
+			[
 				{
-					$Temp.Add($Property, $ParsedResponse.$Property)
+				  "kind": "admin\#directory\#privilege",
+				  "etag": ...,
+				  "serviceId": "02afmg282jiquyg",
+				  "privilegeName": "APP_ADMIN",
+				  "isOuScopable": false
+				},
+				{
+				  "kind": "admin\#directory\#privilege",
+				  "etag": ...,
+				  "serviceId": "04f1mdlm0ki64aw",
+				  "privilegeName": "MANAGE_USER_SETTINGS",
+				  "isOuScopable": true,
+				  "childPrivileges": [
+					{
+					  "kind": "admin\#directory\#privilege",
+					  "etag": ...,
+					  "serviceId": "04f1mdlm0ki64aw",
+					  "privilegeName": "MANAGE_APPLICATION_SETTINGS",
+					  "isOuScopable": true
+					}
+				  ]
+				},
+			...
+		  ]
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/20/2018
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			$ClientId = $PSBoundParameters["ClientId"]
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/roles/ALL/privileges"
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
+
+			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+			[System.Collections.Hashtable[]]$Results = @()
+
+			foreach ($Item in $ParsedResponse.items)
+			{
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $Item
+
+				$Results += $Temp
+			}
+
+			Write-Output -InputObject $Results
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function Get-GoogleDirectoryRoleList {
+	<#
+		.SYNOPSIS
+			Gets a list of existing GSuite roles.
+
+		.DESCRIPTION
+			This cmdlet gets a list of existing roles. 
+
+		.PARAMETER CustomerId
+			If you are an administrator getting roles in your own domain, use my_customer as the customer ID. This is the default.
+			If you are reseller getting roles for one of your customers, use the customer ID returned by the Retrieve a user operation.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Roles = Get-GoogleDirectoryRoleList -ClientId $Id -Persist -UseCompression
+
+			This examples gets the existing roles for the account supporting the current administrator.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			System.Collections.Hashtable[]
+
+			This is a JSON representation of the output:
+			[
+				{
+					"kind": "admin\#directory\#role",
+					"etag": ... ,
+					"roleId": "3894208461012993",
+					"roleName": "_SEED_ADMIN_ROLE",
+					"roleDescription": "Google Apps Administrator Seed Role",
+					"rolePrivileges": [
+						{
+						  "privilegeName": "SUPER_ADMIN",
+						  "serviceId": "01ci93xb3tmzyin"
+						},
+						{
+						  "privilegeName": "ROOT_APP_ADMIN",
+						  "serviceId": "00haapch16h1ysv"
+						},
+						{
+						  "privilegeName": "ADMIN_APIS_ALL",
+						  "serviceId": "00haapch16h1ysv"
+						},
+						...
+					],
+					"isSystemRole": true,
+					"isSuperAdminRole": true
+				},
+				{
+				  "kind": "admin\#directory\#role",
+				  "etag": "\"sxH3n22L0-77khHtQ7tiK6I21Yo/bTXiZXfuK1NGr_f4paosCWXuHmw\"",
+				  "roleId": "3894208461012994",
+				  "roleName": "_GROUPS_ADMIN_ROLE",
+				  "roleDescription": "Groups Administrator",
+				  "rolePrivileges": [
+					{
+					  "privilegeName": "CHANGE_USER_GROUP_MEMBERSHIP",
+					  "serviceId": "01ci93xb3tmzyin"
+					},
+					{
+					  "privilegeName": "USERS_RETRIEVE",
+					  "serviceId": "00haapch16h1ysv"
+					},
+					{
+					  "privilegeName": "GROUPS_ALL",
+					  "serviceId": "00haapch16h1ysv"
+					},
+					{
+					  "privilegeName": "ADMIN_DASHBOARD",
+					  "serviceId": "01ci93xb3tmzyin"
+					},
+					{
+					  "privilegeName": "ORGANIZATION_UNITS_RETRIEVE",
+					  "serviceId": "00haapch16h1ysv"
+					}
+				  ],
+				  "isSystemRole": true
+				},
+			...
+		  ]
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/20/2018
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			$ClientId = $PSBoundParameters["ClientId"]
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/roles"
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
+
+			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+			[System.Collections.Hashtable[]]$Results = @()
+
+			foreach ($Item in $ParsedResponse.items)
+			{
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $Item
+
+				$Results += $Temp
+			}
+
+			Write-Output -InputObject $Results
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function New-GoogleDirectoryRole {
+	<#
+		.SYNOPSIS
+			Creates a new GSuite role.
+
+		.DESCRIPTION
+			This cmdlet creates a new GSuite role.
+
+		.PARAMETER Name
+			The name of the role to create.
+
+		.PARAMETER Privileges
+			The privileges to assign to the role. This is an array of items where each item has a privilege name and service id. For
+			example:
+			
+			$Priv = @{
+				"privilegeName": "USERS_ALL";
+				"serviceId": "00haapch16h1ysv"
+			}
+		
+		.PARAMETER CustomerId
+			If you are an administrator creating a role in your own domain, use my_customer as the customer ID. This is the default.
+			If you are reseller creating a role for one of your customers, use the customer ID returned by the Retrieve a user operation.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Role = New-GoogleDirectoryRole -Name UserAdminRole -Privileges @(@{"privilegeName": "USERS_ALL"; "serviceId": "00haapch16h1ysv"}) -ClientId $Id -Persist -UseCompression -PassThru
+
+			This examples creates a new role called UserAdminRole with the USERS_ALL privilege and returns the new role to the pipeline.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			System.Collections.Hashtable
+
+			This is a JSON representation of the output:
+			{
+			  "kind": "admin\#directory\#role",
+			  "etag": "\"sxH3n22L0-77khHtQ7tiK6I21Yo/uX9tXw0qyijC9nUKgCs08wo8aEM\"",
+			  "roleId": "3894208461013031",
+			  "roleName": "My New Role",
+			  "rolePrivileges": [
+				{
+				  "privilegeName": "GROUPS_ALL",
+				  "serviceId": "00haapch16h1ysv"
+				},
+				{
+				  "privilegeName": "USERS_ALL",
+				  "serviceId": "00haapch16h1ysv"
 				}
+			  ]
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/20/2018
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter(Mandatory = $true, Position = 0)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$Name,
+
+		[Parameter(Mandatory = $true, Position = 1)]
+		[ValidateNotNullOrEmpty()]
+		[System.Collections.Hashtable[]]$Privileges,
+
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression,
+
+		[Parameter()]
+		[Switch]$PassThru
+	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			$ClientId = $PSBoundParameters["ClientId"]
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/roles"
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[System.Collections.Hashtable]$BodyContent = @{"roleName" = $Name; "rolePrivileges" = @()}
+
+			foreach ($Item in $Privileges)
+			{
+				if ($Item.ContainsKey("privilegeName") -and $Item.ContainsKey("serviceId"))
+				{
+					$BodyContent["rolePrivileges"] += @{"privilegeName" = $Item["privilegeName"]; "serviceId" = $Item["serviceId"]}
+				}
+				else
+				{
+					Write-Error -Exception (New-Object -TypeName System.ArgumentException("Privileges", "A privilege was supplied that did not possess a privilegeName and serviceId property.")) -ErrorAction Stop
+				}
+			}
+
+			[System.String]$Body = ConvertTo-Json -InputObject $BodyContent -Depth 3 -Compress
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
+
+			if ($PassThru)
+			{
+				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
+
+				Write-Output -InputObject $Temp
+			}
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function New-GoogleDirectoryRoleAssignment {
+	<#
+		.SYNOPSIS
+			Creates a new GSuite role assignment.
+
+		.DESCRIPTION
+			This cmdlet assigns a role to a user.
+
+		.PARAMETER RoleId
+			The id of the role to which the user will be assigned.
+
+		.PARAMETER UserId
+			The id of the user who will be assigned to the role.
+
+		.PARAMETER ScopeType
+			The scope of the assignment.
+
+		.PARAMETER CustomerId
+			If you are an administrator creating a role assignment in your own domain, use my_customer as the customer ID. This is the default.
+			If you are reseller creating a role assignment for one of your customers, use the customer ID returned by the Retrieve a user operation.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$RoleAssignment = New-GoogleDirectoryRoleAssignment -RoleId "3894208461012995" -UserId "100662996240850794412" -ClientId $Id -Persist -UseCompression -PassThru
+
+			This examples assigns the specified role to the specified user and returns the response to the pipeline.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			None or System.Collections.Hashtable
+
+			This is a JSON representation of the output:
+			{
+			  "kind": "admin\#directory\#roleAssignment",
+			  "etag": "\"sxH3n22L0-77khHtQ7tiK6I21Yo/VdrrUEz7GyXqlr9I9JL0wGZn8yE\"",
+			  "roleAssignmentId": "3894208461013211",
+			  "roleId": "3894208461012995",
+			  "assignedTo": "100662996240850794412",
+			  "scopeType": "CUSTOMER"
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/20/2018
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter(Mandatory = $true, Position = 0)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$RoleId,
+
+		[Parameter(Mandatory = $true, Position = 1)]
+		[ValidateNotNullOrEmpty()]
+		[System.String]$UserId,
+
+		[Parameter()]
+		[ValidateSet("CUSTOMER")]
+		[System.String]$ScopeType = "CUSTOMER",
+
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression,
+
+		[Parameter()]
+		[Switch]$PassThru
+	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			$ClientId = $PSBoundParameters["ClientId"]
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$CustomerId/roleassignments"
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[System.String]$Body = ConvertTo-Json -InputObject (@{"roleId" = $RoleId; "assignedTo" = $UserId; "scopeType" = $ScopeType}) -Depth 3 -Compress
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Post -Body $Body -Headers $Headers -UserAgent $UserAgent
+
+			if ($PassThru)
+			{
+				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+			
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
 
 				Write-Output -InputObject $Temp
 			}
@@ -5189,3 +6605,421 @@ Function Remove-GoogleDirectoryOU {
 }
 
 #endregion
+
+#region Customers
+
+Function Get-GoogleDirectoryCustomer {
+	<#
+		.SYNOPSIS
+			Gets a GSuite customer.
+
+		.DESCRIPTION
+			This cmdlet gets a specified GSuite customer. 
+
+		.PARAMETER CustomerId
+			The CustomerId can be the unique customerId, or my_customer to indicate the current customer. This defaults
+			to my_customer.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Customer = Get-GoogleDirectoryCustomer -ClientId $Id -Persist -UseCompression
+
+			This examples gets the current customer details.
+
+		.INPUTS 
+			None
+		
+		.OUTPUTS
+			System.Collections.Hashtable
+
+			This is a JSON representation of the output:
+			{
+			  "etag": "\"spqlTgq5LGeoin0BH1d0f4rpI98/LnbnRK_ZWu_omowg36CZgTKECrY\"",
+			  "kind": "admin#directory#customer",
+			  "alternateEmail": "marty.mcfly@gmail.com",
+			  "id": "C03xgje4y",
+			  "customerDomain": "amatchmadeinspace.com",
+			  "postalAddress": {
+				"organizationName": "A Match Made in Space, LLC",
+				"countryCode": "US"
+			  },
+			  "customerCreationTime": "2015-10-21T20:42:35.224Z"
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/20/2018
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression
+	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			$ClientId = $PSBoundParameters["ClientId"]
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$CustomerId"
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Get -Headers $Headers -UserAgent $UserAgent
+
+			[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+
+			[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
+
+			Write-Output -InputObject $Temp
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+Function Set-GoogleDirectoryCustomer {
+	<#
+		.SYNOPSIS
+			Updates a GSuite customer.
+
+		.DESCRIPTION
+			This cmdlet updates a specified GSuite customer. 
+
+		.PARAMETER CustomerId
+			The CustomerId can be the unique customerId, or my_customer to indicate the current customer. This defaults
+			to my_customer.
+
+		.PARAMETER CustomerDetails
+			The updated information for the customer. This can include any of the following fields:
+
+			{
+			  "alternateEmail": "marty.mcfly@gmail.com",
+			  "customerDomain": "amatchmadeinspace.com",
+			  "language": "EN",
+			  "postalAddress": {
+				"organizationName": "A Match Made in Space, LLC",
+				"phoneNumber": "+15558675309"
+			  }
+			}
+
+		.PARAMETER PassThru
+			If specified, the updated customer details are passed back to the pipeline.
+
+		.PARAMETER UseCompression
+			If specified, the returned data is compressed using gzip.
+
+		.PARAMETER BearerToken
+			The bearer token to use to authenticate the request.
+
+		.PARAMETER ClientId
+			The client Id of the stored profile that contains the bearer token used to authenticate
+			the request. The cmdlet will automatically update or refresh the access token if necessary (and is
+			possible based on the other data stored in the profile).
+
+		.PARAMETER ProfileLocation
+			The location where stored credentials are located. If this is not specified, the default location will be used.
+
+		.PARAMETER Persist
+			Indicates that the newly retrieved token(s) or refreshed token and associated client data like client secret
+			are persisted to disk.
+
+		.EXAMPLE
+			$Customer = Set-GoogleDirectoryCustomer -CustomerId C03xgje4y -CustomerDetails @{"customerDomain" = "fluxcapacitor.com"} -ClientId $Id -Persist -UseCompression -PassThru
+
+			This examples updates the customer primary domain name.
+
+		.INPUTS 
+			System.Collections.Hashtable
+		
+		.OUTPUTS
+			None or System.Collections.Hashtable
+
+			This is a JSON representation of the output:
+			{
+			  "etag": "\"spqlTgq5LGeoin0BH1d0f4rpI98/LnbnRK_ZWu_omowg36CZgTKECrY\"",
+			  "kind": "admin#directory#customer",
+			  "alternateEmail": "marty.mcfly@gmail.com",
+			  "id": "C03xgje4y",
+			  "customerDomain": "amatchmadeinspace.com",
+			  "postalAddress": {
+				"organizationName": "A Match Made in Space, LLC",
+				"countryCode": "US"
+			  },
+			  "customerCreationTime": "2015-10-21T20:42:35.224Z"
+			}
+
+		.NOTES
+            AUTHOR: Michael Haken
+			LAST UPDATE: 2/20/2018
+	#>
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
+	Param(
+		[Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$CustomerId = "my_customer",
+
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+		[ValidateNotNull()]
+		[System.Collections.Hashtable]$CustomerDetails,
+
+		[Parameter(Mandatory = $true, ParameterSetName = "Token")]
+        [ValidateNotNullOrEmpty()]
+        [System.String]$BearerToken,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[System.String]$ProfileLocation,
+
+		[Parameter(ParameterSetName = "Profile")]
+		[Switch]$Persist,
+
+		[Parameter()]
+		[Switch]$UseCompression,
+
+		[Parameter()]
+		[Switch]$PassThru
+	)
+
+	DynamicParam {
+		New-DynamicParameter -Name "ClientId" -Type ([System.String]) -Mandatory -ParameterSets @("Profile") -ValidateNotNullOrEmpty -ValidateSet (Get-GoogleOAuth2Profile -ProfileLocation $ProfileLocation)
+	}
+
+	Begin {
+	}
+
+	Process {
+		[System.String]$Base = $script:OUBaseUrl
+
+		if ($PSCmdlet.ParameterSetName -eq "Profile")
+		{
+			$ClientId = $PSBoundParameters["ClientId"]
+			[System.Collections.Hashtable]$Token = Get-GoogleOAuth2Token -ClientId $ClientId -ProfileLocation $ProfileLocation -Persist:$Persist -ErrorAction Stop
+			$BearerToken = $Token["access_token"]
+		}
+
+		[System.String]$Url = "$Base/$CustomerId"
+
+		try
+		{
+			$Headers = @{"Authorization" = "Bearer $BearerToken"}
+			$UserAgent = $script:UserAgent
+
+			if ($UseCompression)
+			{
+				$UserAgent = $script:UserAgentGzip
+				$Headers.Add("Accept-Encoding", "gzip")
+			}
+
+			[System.String]$Body = ConvertTo-Json -InputObject $CustomerDetails -Depth 3 -Compress
+
+			[Microsoft.PowerShell.Commands.WebResponseObject]$Response = Invoke-WebRequest -Uri $Url -Method Put -Body $Body -Headers $Headers -UserAgent $UserAgent
+
+			if ($PassThru)
+			{
+				[PSCustomObject]$ParsedResponse = ConvertFrom-Json -InputObject $Response.Content
+
+				[System.Collections.Hashtable]$Temp = Convert-PSCustomToHashtable -InputObject $ParsedResponse
+
+				Write-Output -InputObject $Temp
+			}
+		}
+		catch [System.Net.WebException]
+		{
+			[System.Net.WebException]$Ex = $_.Exception
+			[System.Net.HttpWebResponse]$Response = [System.Net.HttpWebResponse]($Ex.Response)
+			[System.Int32]$StatusCode = $Response.StatusCode.value__
+			[System.IO.Stream]$Stream = $Ex.Response.GetResponseStream()
+			[System.IO.StreamReader]$Reader = New-Object -TypeName System.IO.StreamReader($Stream, [System.Text.Encoding]::UTF8)
+			[System.String]$Content = $Reader.ReadToEnd()
+				
+			[System.String]$Message = "$StatusCode : $Content"
+
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				[System.Web.HttpException]$NewEx = New-Object -TypeName System.Web.HttpException($Content, $StatusCode)
+				Write-Error -Exception $NewEx -Category NotSpecified -ErrorId $StatusCode
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $Message"
+			}
+		}
+		catch [Exception] 
+		{
+			if ($ErrorActionPreference -eq [System.Management.Automation.ActionPreference]::Stop)
+			{
+				Write-Error -Exception $_.Exception -ErrorAction Stop
+			}
+			elseif ($ErrorActionPreference -ne [System.Management.Automation.ActionPreference]::SilentlyContinue)
+			{
+				Write-Warning -Message $_.Exception.Message
+			}
+			else
+			{
+				Write-Verbose -Message "[ERROR] : $($_.Exception.Message)"
+			}
+		}
+	}
+
+	End {
+	}
+}
+
+#endregion
+
+Function Convert-PSCustomToHashtable {
+	[CmdletBinding()]
+	[OutputType()]
+	Param(
+		[Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+		[PSCustomObject]$InputObject
+	)
+
+	Begin {
+	}
+
+	Process {
+		[System.Collections.Hashtable]$Result = @{}
+
+		foreach($Property in ($InputObject | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name))
+		{
+			$Value = $InputObject.$Property
+
+			[System.Type]$Type = $Value.GetType()
+
+			if ($Type.IsPrimitive -or $Value -is [System.String])
+			{
+				$Result.Add($Property, $Value)
+			}
+            elseif($Type.GetInterfaces().Contains([System.Collections.IEnumerable]))
+			{
+				$Arr = @()
+				foreach ($Item in $Value)
+				{
+					if ($Item -is [PSCustomObject])
+                    {
+                        $Arr += (Convert-PSCustomToHashtable -InputObject $Item)
+                    }
+                    else
+                    {
+                        $Arr += $Item
+                    }
+				}
+
+                $Result.Add($Property, $Arr)
+			}
+			elseif ($Value -is [PSCustomObject])
+			{
+				$Result.Add($Property, (Convert-PSCustomToHashtable -InputObject $Value))
+			}
+            else
+            {
+                $Result.Add($Property, $Value)
+            }
+		}
+
+		Write-Output -InputObject $Result
+	}
+
+	End {
+	}
+}
